@@ -8,7 +8,6 @@ I am not an XML fan - in fact, I hate it.
 
 I'd like to acknowledge the help I got from the wonderful Haskell community for this. I'd particularly like to call out the help provided by the following folks -
 
-1. Christian Maeder <Christian.Maeder@dfki.de>
 1. Antoine Latter <aslatter@gmail.com>
 1. Simon Hengel <sol@typeful.net>
 
