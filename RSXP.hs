@@ -92,14 +92,12 @@ keyValue =
     return (key, value)
 
 quotedString :: Parser String
-quotedString = 
-  do 
-    c <- (try (char '"')) <|> char '\''
-    content <- many (quotedChar c)
-    char c <?> "quote at end"
-    return content
+quotedString = do
+  q <- (try (char '"')) <|> char '\''
+  value <- fmap concat $ many
+    $ many1 (noneOf ['\\', q])
+      <|> try (string ['\\', q])
+      <|> try (string "\\")
+  char q
+  return value
 
-quotedChar :: Char -> Parser Char
-quotedChar c =
-  try (string ['\\', c] >> return c)        
-  <|> noneOf [c]
