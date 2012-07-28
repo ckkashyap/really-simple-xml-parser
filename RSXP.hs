@@ -101,3 +101,18 @@ quotedString = do
   char q
   return value
 
+getElementByName :: String -> [XMLAST] -> Maybe [XMLAST]
+getElementByName name ((Element name' _ (e:es)):rest) =
+  if name' == name then do
+    moreResults <- getElementByName name rest
+    return (e:moreResults)
+  else getElementByName name rest
+getElementByName name (_:rest) = getElementByName name rest
+getElementByName _ _ = Nothing
+
+{-getValue :: String -> [XMLAST] -> Maybe 
+getValue name es = do
+            e <- getElementByName name es
+            v <- getBody e
+            return v
+-}
