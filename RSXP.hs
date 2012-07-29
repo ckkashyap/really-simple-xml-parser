@@ -38,9 +38,9 @@ withExplicitCloseTag =
     closeTag name
     return (Element name attr innerXML)
 
-innerXML = comment <|> xmlParser <|> getBody
+innerXML = comment <|> xmlParser <|> parseBody
 
-getBody = fmap Body $ many1 $ noneOf "<>"
+parseBody = fmap Body $ many1 $ noneOf "<>"
 
 comment :: Parser XMLAST
 comment =
@@ -101,18 +101,14 @@ quotedString = do
   char q
   return value
 
-getElementByName :: String -> [XMLAST] -> Maybe [XMLAST]
-getElementByName name ((Element name' _ (e:es)):rest) =
-  if name' == name then do
-    moreResults <- getElementByName name rest
-    return (e:moreResults)
-  else getElementByName name rest
-getElementByName name (_:rest) = getElementByName name rest
-getElementByName _ _ = Nothing
+getAllBodies :: String -> XMLAST -> [(String, String)] -- pairs of parent/body
+getAllBodies p (Body str) = [(p, str)]
+getAllBodies _ (Element n a []) = []
+getAllBodies _ (Element n a (e:es)) =
+             let v1 = getAllBodies n e
+                 v2 = concat $ map (getAllBodies n) es
+             in (v1 ++ v2)
+getAllBodies parent _ = []
 
-{-getValue :: String -> [XMLAST] -> Maybe 
-getValue name es = do
-            e <- getElementByName name es
-            v <- getBody e
-            return v
--}
+getBodiesByName :: String -> XMLAST -> [String]
+getBodiesByName name xmlast= map snd $ filter (\(n,v) -> n == name) (getAllBodies "Root" xmlast)
