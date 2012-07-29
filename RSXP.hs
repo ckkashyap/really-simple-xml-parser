@@ -101,14 +101,15 @@ quotedString = do
   char q
   return value
 
-getAllBodies :: String -> XMLAST -> [(String, String)] -- pairs of parent/body
-getAllBodies p (Body str) = [(p, str)]
-getAllBodies _ (Element n a []) = []
-getAllBodies _ (Element n a (e:es)) =
-             let v1 = getAllBodies n e
-                 v2 = concat $ map (getAllBodies n) es
-             in (v1 ++ v2)
-getAllBodies parent _ = []
+getAllBodies :: Bool -> String -> XMLAST -> [(String, String)]
+getAllBodies _ p (Body str) = [(p, str)]
+getAllBodies _ p (Element n a []) = []
+getAllBodies t p (Element n a (e:es)) =
+             let v1 = getAllBodies t (f p n) e
+                 v2 = concat $ map (getAllBodies t (f p n)) es
+                 f x y = if t then x ++ "/" ++ y else y
+             in (v1 ++ v2) 
+getAllBodies _ p _ = []
 
 getBodiesByName :: String -> XMLAST -> [String]
-getBodiesByName name xmlast= map snd $ filter (\(n,v) -> n == name) (getAllBodies "Root" xmlast)
+getBodiesByName name xmlast= map snd $ filter (\(n,v) -> n == name) (getAllBodies False "Root" xmlast)
