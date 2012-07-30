@@ -1,6 +1,8 @@
 module RSXP (
     XMLAST (Element, Body, Comment)
   , parseXML
+  , getAllBodies
+  , getBodiesByName
 ) where
 
 import Text.ParserCombinators.Parsec
@@ -101,15 +103,17 @@ quotedString = do
   char q
   return value
 
-getAllBodies :: Bool -> String -> XMLAST -> [(String, String)]
-getAllBodies _ p (Body str) = [(p, str)]
-getAllBodies _ p (Element n a []) = []
-getAllBodies t p (Element n a (e:es)) =
-             let v1 = getAllBodies t (f p n) e
-                 v2 = concat $ map (getAllBodies t (f p n)) es
-                 f x y = if t then x ++ "/" ++ y else y
-             in (v1 ++ v2) 
-getAllBodies _ p _ = []
+getAllBodies :: XMLAST -> [(String, String)]
+getAllBodies = getAllBodies' "" where
+  getAllBodies' :: String -> XMLAST -> [(String, String)]
+  getAllBodies' p (Body str) = [(p, str)]
+  getAllBodies' p (Element n a []) = []
+  getAllBodies' p (Element n a (e:es)) =
+               let v1 = getAllBodies' (fixUp p n) e
+                   v2 = concat $ map (getAllBodies' (fixUp p n)) es
+                   fixUp x y = x ++ "/" ++ y
+               in (v1 ++ v2) 
+  getAllBodies' p _ = []
 
 getBodiesByName :: String -> XMLAST -> [String]
-getBodiesByName name xmlast= map snd $ filter (\(n,v) -> n == name) (getAllBodies False "Root" xmlast)
+getBodiesByName name xmlast= map snd $ filter (\(n,v) -> n == name) (getAllBodies xmlast)

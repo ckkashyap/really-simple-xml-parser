@@ -1,0 +1,17 @@
+<xml>
+  <a>Under a</a>
+  <b>
+    <c a='b'>
+      under c1
+    </c>
+    <c c='d'>
+      under c2
+    </c>
+    <c>
+      under c3
+    </c>
+    <c>
+      under c4
+    </c>
+  </b>
+</xml>
