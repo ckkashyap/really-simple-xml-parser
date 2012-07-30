@@ -3,6 +3,9 @@ module RSXP (
   , parseXML
   , getAllBodies
   , getBodiesByName
+  , getAllElements
+  , getElementsByName
+  , getElementsByPath
 ) where
 
 import Text.ParserCombinators.Parsec
@@ -103,16 +106,30 @@ quotedString = do
   char q
   return value
 
+
+getAllElements :: XMLAST -> [(XMLAST, String, XMLAST)]
+getAllElements ast = getAllElements' ast "" ast
+getAllElements' pe pp element@(Element n a es) = concat $ map (getAllElements' element (pp ++ "/" ++ n)) es
+getAllElements' pe pp x = [(pe, pp, x)]
+
+getElementsByName :: String -> XMLAST -> [(XMLAST, String, XMLAST)]
+getElementsByName str ast = filter (\e -> f e) (getAllElements ast) where
+                  f ((Element n _ _), _, _) = n == str
+                  f _ = False
+
+getElementsByPath :: String -> XMLAST -> [(XMLAST, String, XMLAST)]
+getElementsByPath str ast = filter (\e -> f e) (getAllElements ast) where
+                  f (_ , p, _) = p == str
+
+
 getAllBodies :: XMLAST -> [(String, String)]
 getAllBodies = getAllBodies' "" where
   getAllBodies' :: String -> XMLAST -> [(String, String)]
   getAllBodies' p (Body str) = [(p, str)]
-  getAllBodies' p (Element n a []) = []
-  getAllBodies' p (Element n a (e:es)) =
-               let v1 = getAllBodies' (fixUp p n) e
-                   v2 = concat $ map (getAllBodies' (fixUp p n)) es
+  getAllBodies' p (Element n a es) =
+               let v2 = concat $ map (getAllBodies' (fixUp p n)) es
                    fixUp x y = x ++ "/" ++ y
-               in (v1 ++ v2) 
+               in v2
   getAllBodies' p _ = []
 
 getBodiesByName :: String -> XMLAST -> [String]
