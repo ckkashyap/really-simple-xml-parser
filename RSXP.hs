@@ -103,7 +103,7 @@ withoutExplictCloseTag =
 keyValue :: Parser (String, String)
 keyValue = 
   do
-    key <- many1 (letter <|> digit)
+    key <- many1 (letter <|> digit <|> char '-')
     spaces
     char '='
     spaces
