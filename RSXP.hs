@@ -1,5 +1,6 @@
 module RSXP (
     XMLAST (Element, Body, Comment)
+  , parseXML'
   , parseXML
   , getAllBodies
   , getBodiesByName
@@ -14,7 +15,8 @@ data XMLAST =
     Element Name [Attribute] [XMLAST]
   | Body String
   | Comment String
-  | CouldNotParse
+  | Schema String
+  | CouldNotParse String
   deriving Show
 
 type Name      = String
@@ -28,7 +30,7 @@ parseXML str =
   f ast where
       ast = parse (spaces >> xmlParser) "" str
       f (Right x) = x
-      f (Left x) = CouldNotParse
+      f (Left x) = CouldNotParse (show x)
       
 xmlParser :: Parser XMLAST
 xmlParser = 
@@ -43,9 +45,16 @@ withExplicitCloseTag =
     closeTag name
     return (Element name attr innerXML)
 
-innerXML = comment <|> xmlParser <|> parseBody
+innerXML = comment <|> schema <|> xmlParser <|> parseBody
 
 parseBody = fmap Body $ many1 $ noneOf "<>"
+
+schema :: Parser XMLAST
+schema = 
+  do
+    try $ string "<!"
+    body <- manyTill anyChar (string ">")
+    return (Schema body)
 
 comment :: Parser XMLAST
 comment =
