@@ -24,6 +24,12 @@ type Attribute = (Key, Value)
 type Key       = String
 type Value     = String 
 
+parseXML' :: String -> [XMLAST]
+parseXML' str =
+  f ast where
+      ast = parse ((many innerXML)) "" str
+      f (Right x) = x
+      f (Left x) = [CouldNotParse (show x)]
 
 parseXML :: String -> XMLAST
 parseXML str =
