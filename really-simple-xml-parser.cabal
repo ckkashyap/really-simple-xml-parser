@@ -18,8 +18,7 @@ cabal-version:       >=1.8
 library
   exposed-modules:     RSXP
   -- other-modules:       
-  build-depends:       base ==4.5.*
-                       , parsec
+  build-depends:       base, parsec
 
 source-repository head
     type: git
