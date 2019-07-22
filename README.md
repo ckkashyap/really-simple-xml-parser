@@ -10,4 +10,4 @@ I'd like to acknowledge the help I got from the wonderful Haskell community for 
 
 1. Antoine Latter <aslatter@gmail.com>
 1. Simon Hengel <sol@typeful.net>
-
+2. Aparajit
